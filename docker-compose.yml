@@ -1,0 +1,186 @@
+---
+
+version: '3.9'
+
+name: jenkins
+
+services:
+  jenkins:
+    image: jenkins/jenkins:2.426.2  # 2.277.4
+    container_name: jenkins
+    restart: unless-stopped
+    # stop_grace_period: 30s
+    # command: ["executable", "arg"]
+    profiles:
+      - "all"
+      - "full"
+      - "master"
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+      jenkins:
+        aliases:
+          - "jenkins"
+          - "master"
+    # healthcheck:
+    #   test: ["CMD", "dnscrypt-proxy", "-config", "/etc/dnscrypt-proxy/dnscrypt-proxy.toml", "-resolve", "captive.apple.com"]
+    #   interval: 3s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 30s
+    # user: "${UID}:${GID}"
+    # security_opt:
+    #   - no-new-privileges:true
+    #   - label:disable
+    # cap_drop:
+    #   - ALL
+    # cap_add:
+    #   - NET_BIND_SERVICE
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 20000
+    #     hard: 40000
+    # deploy:
+    # #   mode: global
+    # #   restart_policy:
+    # #     condition: on-failure
+    #   resources:
+    #     limits:
+    #       cpus: '0.70'
+    #       memory: 1G
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
+    env_file:
+      - ./.env
+    environment:
+      TZ: "Asia/Shanghai"
+      DEFAULT_TZ: "Asia/Shanghai"
+      # HTTP_PROXY: "${HTTP_PROXY}"
+      # HTTPS_PROXY: "${HTTPS_PROXY}"
+      DOCKER_HOST: "tcp://docker:2376"
+      DOCKER_CERT_PATH: "/certs/client"
+      DOCKER_TLS_VERIFY: "1"
+      CASC_JENKINS_CONFIG: "/var/jenkins_home/casc_configs"
+      JENKINS_OPTS: "--prefix=/jenkins"
+      # JENKINS_PREFIX: "/jenkins"
+    volumes:
+      - type: bind
+        source: "/usr/share/zoneinfo/Asia/Shanghai"
+        target: "/usr/share/zoneinfo/Asia/Shanghai"
+        read_only: true
+      - type: bind
+        source: "./docker-certs"
+        target: "/certs"
+        read_only: true
+      - type: bind
+        source: "./jenkins/data"
+        target: "/var/jenkins_home"
+      - type: bind
+        source: "./jenkins/ref/plugins.txt"
+        target: "/usr/share/jenkins/ref/plugins.txt"
+      # - type: bind
+      #   source: "./jenkins/ref/plugins"
+      #   target: "/usr/share/jenkins/ref/plugins"
+      - type: bind
+        source: "./jenkins/ref/init.groovy.d"
+        target: "/usr/share/jenkins/ref/init.groovy.d"
+      # - type: bind
+      #   source: "./jenkins/ref/jenkins.install.UpgradeWizard.state"
+      #   target: "/usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.docker.network=traefik"
+
+  jenkins-docker:
+    image: docker:24.0.7-dind
+    container_name: jenkins-docker
+    restart: unless-stopped
+    profiles:
+      - "all"
+      - "full"
+      - "agent"
+    ports:
+      - "2376:2376"
+    privileged: true
+    storage_opt:
+      driver: overlay2
+    networks:
+      jenkins:
+        aliases:
+          - "docker"
+    env_file:
+      - ./.env
+    environment:
+      TZ: "Asia/Shanghai"
+      DEFAULT_TZ: "Asia/Shanghai"
+      # HTTP_PROXY: "${HTTP_PROXY}"
+      # HTTPS_PROXY: "${HTTPS_PROXY}"
+      DOCKER_TLS_CERTDIR: "/certs"
+    volumes:
+      - type: bind
+        source: "/usr/share/zoneinfo/Asia/Shanghai"
+        target: "/usr/share/zoneinfo/Asia/Shanghai"
+        read_only: true
+      - type: bind
+        source: "./docker-certs"
+        target: "/certs"
+      - type: bind
+        source: "./jenkins/data"
+        target: "/var/jenkins_home"
+
+# https://www.jenkins.io/doc/book/using/using-agents/
+# https://hub.docker.com/r/jenkins/inbound-agent
+  jenkins-agent:
+    image: jenkins/inbound-agent
+    container_name: jenkins-agent
+    restart: unless-stopped
+    profiles:
+      - "all"
+      - "full"
+      - "agent"
+    networks:
+      jenkins:
+        aliases:
+          - "agent"
+    env_file:
+      - ./.env
+    environment:
+      TZ: "Asia/Shanghai"
+      DEFAULT_TZ: "Asia/Shanghai"
+      # HTTP_PROXY: "${HTTP_PROXY}"
+      # HTTPS_PROXY: "${HTTPS_PROXY}"
+      DOCKER_HOST: "tcp://docker:2376"
+      DOCKER_CERT_PATH: "/certs/client"
+      DOCKER_TLS_VERIFY: "1"
+      JENKINS_URL: "http://jenkins:8080"
+      JENKINS_AGENT_NAME: "agent"
+      JENKINS_WEB_SOCKET: true
+      JENKINS_SECRET: "${JENKINS_SECRET}"
+      # JENKINS_AGENT_SECRET: "${JENKINS_SECRET}"
+      JENKINS_AGENT_WORKDIR: "/home/jenkins/agent"
+      JENKINS_AGENT_LABELS: "agent"
+    volumes:
+      - type: bind
+        source: "/usr/share/zoneinfo/Asia/Shanghai"
+        target: "/usr/share/zoneinfo/Asia/Shanghai"
+        read_only: true
+      - type: bind
+        source: "./docker-certs"
+        target: "/certs"
+      - type: bind
+        source: "./jenkins/agent"
+        target: "/home/jenkins"
+
+
+# docker network create jenkins
+networks:
+  # default:
+  #   # driver: bridge
+  #   external: true
+  jenkins:
+    name: "jenkins"
+    # driver: "bridge"
+    external: true
