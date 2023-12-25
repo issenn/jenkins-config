@@ -1,1 +1,6 @@
 # Prevent suggesting these words
+Discarder
+Discarders
+JNLP
+remoting
+Signup

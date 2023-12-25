@@ -1,7 +1,7 @@
 jenkins:
   agentProtocols:
-  - "JNLP4-connect"
-  - "Ping"
+    - "JNLP4-connect"
+    - "Ping"
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
@@ -10,15 +10,15 @@ jenkins:
       excludeClientIPFromCrumb: false
   disableRememberMe: false
   labelAtoms:
-  - name: "built-in"
+    - name: "built-in"
   markupFormatter: "plainText"
   mode: NORMAL
   myViewsTabBar: "standard"
   nodeMonitors:
-  - diskSpaceMonitor:
-      freeSpaceThreshold: "1GB"
-  - tmpSpace:
-      freeSpaceThreshold: "1GB"
+    - diskSpaceMonitor:
+        freeSpaceThreshold: "1GB"
+    - tmpSpace:
+        freeSpaceThreshold: "1GB"
   numExecutors: 0
   primaryView:
     all:
@@ -33,21 +33,21 @@ jenkins:
       allowsSignup: false
       enableCaptcha: false
       users:
-      - id: "issenn"
-        name: "issen@issenn.com"
-        properties:
-        - "myView"
-        - "timezone"
-        - "experimentalFlags"
-        - "apiToken"
+        - id: "issenn"
+          name: "issen@issenn.com"
+          properties:
+            - "myView"
+            - "timezone"
+            - "experimentalFlags"
+            - "apiToken"
   slaveAgentPort: 50000
   updateCenter:
     sites:
-    - id: "default"
-      url: "https://updates.jenkins.io/update-center.json"
+      - id: "default"
+        url: "https://updates.jenkins.io/update-center.json"
   views:
-  - all:
-      name: "all"
+    - all:
+        name: "all"
   viewsTabBar: "standard"
 appearance:
   prism:
@@ -60,7 +60,7 @@ security:
 unclassified:
   buildDiscarders:
     configuredBuildDiscarders:
-    - "jobBuildDiscarder"
+      - "jobBuildDiscarder"
   fingerprints:
     fingerprintCleanupDisabled: false
     storage: "file"
