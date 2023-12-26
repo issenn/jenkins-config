@@ -11,6 +11,8 @@ jenkins:
   disableRememberMe: false
   labelAtoms:
     - name: "built-in"
+    - name: "default"
+    - name: "agent"
   markupFormatter: "plainText"
   mode: NORMAL
   myViewsTabBar: "standard"
@@ -19,6 +21,21 @@ jenkins:
         freeSpaceThreshold: "1GB"
     - tmpSpace:
         freeSpaceThreshold: "1GB"
+  nodes:
+    - permanent:
+        labelString: "agent"
+        launcher:
+          inbound:
+            webSocket: true
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+              workDirPath: "/home/jenkins/agent"
+        mode: EXCLUSIVE
+        name: "default"
+        remoteFS: "/home/jenkins"
+        retentionStrategy: "always"
   numExecutors: 0
   primaryView:
     all:
@@ -33,8 +50,11 @@ jenkins:
       allowsSignup: false
       enableCaptcha: false
       users:
+        - id: "admin"
+          password: "admin"
         - id: "issenn"
           name: "Issenn"
+          password: "123456"
           properties:
             - "myView"
             - preferredProvider:
@@ -57,6 +77,18 @@ globalCredentialsConfiguration:
   configuration:
     providerFilter: "none"
     typeFilter: "none"
+# credentials:
+#   system:
+#     domainCredentials:
+#       - credentials:
+#         - basicSSHUserPrivateKey:
+#             id: "jenkins-ssh-agent-private-key"
+#             description: "private ssh key for jenkins agent"
+#             privateKeySource:
+#               directEntry:
+#                 privateKey: ${readFile:/ssh-dir/jenkins_agent_ed}
+#             scope: SYSTEM
+#             username: "jenkins"
 appearance:
   prism:
     theme: PRISM
