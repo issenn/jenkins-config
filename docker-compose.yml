@@ -2,7 +2,7 @@
 
 version: '3.9'
 
-name: jenkins
+# name: jenkins
 
 services:
   jenkins:
@@ -119,8 +119,8 @@ services:
       # - "master"
       # - "controller"
       - "agent"
-    ports:
-      - "2376:2376"
+    # ports:
+    #   - "2376:2376"
     networks:
       jenkins:
         aliases:
