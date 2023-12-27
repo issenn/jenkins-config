@@ -42,28 +42,11 @@ jenkins:
       name: "all"
   projectNamingStrategy: "standard"
   quietPeriod: 5
-  remotingSecurity:
-    enabled: true
   scmCheckoutRetryCount: 0
   securityRealm:
     local:
       allowsSignup: false
       enableCaptcha: false
-      users:
-        - id: "admin"
-          password: "admin"
-        - id: "issenn"
-          name: "Issenn"
-          password: "123456"
-          properties:
-            - "myView"
-            - preferredProvider:
-                providerId: "default"
-            - "timezone"
-            - "experimentalFlags"
-            - mailer:
-                emailAddress: "issennknight@gmail.com"
-            - "apiToken"
   slaveAgentPort: 50000
   updateCenter:
     sites:

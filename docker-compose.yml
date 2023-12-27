@@ -13,6 +13,7 @@ services:
     profiles:
       - "all"
       - "full"
+      - "jenkins"
       - "master"
       - "controller"
     ports:
@@ -38,11 +39,16 @@ services:
     #   - ALL
     # cap_add:
     #   - NET_BIND_SERVICE
-    # ulimits:
-    #   nproc: 65535
-    #   nofile:
-    #     soft: 20000
-    #     hard: 40000
+    ulimits:
+      nproc:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 524288
+        hard: 1048576
+      core:
+        soft: -1
+        hard: -1
     # deploy:
     # #   mode: global
     # #   restart_policy:
@@ -57,14 +63,14 @@ services:
     env_file:
       - ./.env
     environment:
-      TZ: "Asia/Shanghai"
-      DEFAULT_TZ: "Asia/Shanghai"
+      TZ: "${TZ:-Asia/Shanghai}"
+      DEFAULT_TZ: "${DEFAULT_TZ:-Asia/Shanghai}"
       # HTTP_PROXY: "${HTTP_PROXY}"
       # HTTPS_PROXY: "${HTTPS_PROXY}"
       DOCKER_HOST: "tcp://docker:2376"
       DOCKER_CERT_PATH: "/certs/client"
       DOCKER_TLS_VERIFY: "1"
-      # CASC_JENKINS_CONFIG: "/var/jenkins_home/casc_configs"
+      # CASC_JENKINS_CONFIG: "${CASC_JENKINS_CONFIG:-/usr/share/jenkins/jenkins.yaml,/usr/share/jenkins/casc_configs}"
       JENKINS_OPTS: "--prefix=/jenkins"
       # JAVA_OPTS: ""
       # JENKINS_JAVA_OPTS: ""
@@ -92,16 +98,24 @@ services:
       # - type: bind
       #   source: "./jenkins/ref/jenkins.install.UpgradeWizard.state"
       #   target: "/usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state"
+      # - type: bind
+      #   source: "./jenkins/jenkins.yaml"
+      #   target: "/usr/share/jenkins/jenkins.yaml"
+      # - type: bind
+      #   source: "./jenkins/casc_configs"
+      #   target: "/usr/share/jenkins/casc_configs"
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.docker.network=traefik"
 
+# https://hub.docker.com/_/docker
   docker:
     image: docker:24.0.7-dind
     restart: unless-stopped
     profiles:
       - "all"
       - "full"
+      # - "jenkins"
       # - "master"
       # - "controller"
       - "agent"
@@ -114,11 +128,35 @@ services:
     privileged: true
     storage_opt:
       driver: overlay2
+    ulimits:
+      nproc:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 524288
+        hard: 1048576
+      core:
+        soft: -1
+        hard: -1
+    deploy:
+    #   mode: global
+    #   restart_policy:
+    #     condition: on-failure
+      resources:
+        limits:
+          # cpus: '0.70'
+          # memory: 1G
+          pids: -1
+        # reservations:
+        #   cpus: '0.5'
+        #   memory: 512M
+    # oom_kill_disable: false
+    oom_score_adj: -500
     env_file:
       - ./.env
     environment:
-      TZ: "Asia/Shanghai"
-      DEFAULT_TZ: "Asia/Shanghai"
+      TZ: "${TZ:-Asia/Shanghai}"
+      DEFAULT_TZ: "${DEFAULT_TZ:-Asia/Shanghai}"
       # HTTP_PROXY: "${HTTP_PROXY}"
       # HTTPS_PROXY: "${HTTPS_PROXY}"
       DOCKER_TLS_CERTDIR: "/certs"
@@ -155,20 +193,19 @@ services:
     env_file:
       - ./.env
     environment:
-      TZ: "Asia/Shanghai"
-      DEFAULT_TZ: "Asia/Shanghai"
+      TZ: "${TZ:-Asia/Shanghai}"
+      DEFAULT_TZ: "${DEFAULT_TZ:-Asia/Shanghai}"
       # HTTP_PROXY: "${HTTP_PROXY}"
       # HTTPS_PROXY: "${HTTPS_PROXY}"
       DOCKER_HOST: "tcp://docker:2376"
       DOCKER_CERT_PATH: "/certs/client"
       DOCKER_TLS_VERIFY: "1"
-      JENKINS_URL: "http://jenkins:8080/jenkins"
+      JENKINS_URL: "${JENKINS_URL:-http://jenkins:8080/jenkins}"
       # JENKINS_TUNNEL: ""
-      JENKINS_AGENT_NAME: "default"
+      JENKINS_AGENT_NAME: "${JENKINS_AGENT_NAME:-default}"
+      JENKINS_AGENT_WORKDIR: "${JENKINS_AGENT_WORKDIR:-/home/jenkins/agent}"
       JENKINS_WEB_SOCKET: true
       JENKINS_SECRET: "${JENKINS_SECRET}"
-      JENKINS_AGENT_WORKDIR: "/home/jenkins/agent"
-      JENKINS_AGENT_LABELS: "agent"
       # JENKINS_AGENT_SSH_PUBKEY: ""
       # JAVA_OPTS: ""
       # JENKINS_JAVA_OPTS: ""
@@ -180,6 +217,7 @@ services:
       - type: bind
         source: "./docker-certs"
         target: "/certs"
+        read_only: true
       - type: bind
         source: "./jenkins/agent"
         target: "/home/jenkins"
