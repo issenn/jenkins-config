@@ -179,7 +179,11 @@ services:
 # https://hub.docker.com/r/jenkins/inbound-agent
 # https://github.com/jenkinsci/docker-inbound-agent
   agent:
-    image: jenkins/inbound-agent
+    # image: jenkins/inbound-agent
+    image: jenkins/inbound-agent:ansible
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     profiles:
       - "all"

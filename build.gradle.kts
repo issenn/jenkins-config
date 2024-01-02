@@ -1,5 +1,5 @@
 plugins {
-    id("groovy")
+    groovy
 }
 
 group = "com.issenn.jenkins-config"
@@ -15,11 +15,31 @@ repositories {
 
 dependencies {
     implementation("org.codehaus.groovy:groovy-all:2.4.21")
-    implementation("org.jenkins-ci.main:jenkins-core:2.277.4")
+    implementation(group = "org.jenkins-ci.main", name = "jenkins-core", version = "2.277.4", ext = "jar")
 }
 
 sourceSets {
     main {
-        groovy.srcDir("jenkins/ref/init.groovy.d")
+        java {
+            setSrcDirs(emptyList<String>())
+        }
+        groovy {
+            setSrcDirs(emptyList<String>())
+            setSrcDirs(listOf("jenkins/ref/init.groovy.d"))
+        }
+        resources {
+            setSrcDirs(emptyList<String>())
+        }
+    }
+    test {
+        java {
+            setSrcDirs(emptyList<String>())
+        }
+        groovy {
+            setSrcDirs(emptyList<String>())
+        }
+        resources {
+            setSrcDirs(emptyList<String>())
+        }
     }
 }
