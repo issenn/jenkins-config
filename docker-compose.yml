@@ -207,7 +207,7 @@ services:
       JENKINS_URL: "${JENKINS_URL:-http://jenkins:8080/jenkins}"
       # JENKINS_TUNNEL: ""
       JENKINS_AGENT_NAME: "${JENKINS_AGENT_NAME:-default}"
-      JENKINS_AGENT_WORKDIR: "${JENKINS_AGENT_WORKDIR:-/home/jenkins/agent}"
+      JENKINS_AGENT_WORKDIR: "${JENKINS_AGENT_WORKDIR:-/home/jenkins}"
       JENKINS_WEB_SOCKET: true
       JENKINS_SECRET: "${JENKINS_SECRET}"
       # JENKINS_AGENT_SSH_PUBKEY: ""
